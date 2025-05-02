@@ -1,0 +1,107 @@
+<div class="weather-container">
+  <app-search 
+    (search)="getWeatherForCity($event)" 
+    (locationSearch)="getWeatherByLocation($event)">
+  </app-search>
+
+  <div *ngIf="loading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Loading weather data...</p>
+  </div>
+
+  <div *ngIf="error" class="error-container">
+    <p>{{ error }}</p>
+    <button (click)="getWeatherForCity('London')" class="btn btn-primary">
+      Try a different city
+    </button>
+  </div>
+
+  <div *ngIf="weatherData && !loading" class="weather-content">
+    <div class="current-weather">
+      <div class="location-info">
+        <h2>{{ weatherData.name }}, {{ weatherData.sys.country }}</h2>
+        <p class="date">{{ formatDate(weatherData.dt) }}</p>
+      </div>
+
+      <div class="weather-main">
+        <div class="temperature-container">
+          <div class="temperature">
+            {{ getFormattedTemperature(weatherData.main.temp) }}
+          </div>
+          <button 
+            (click)="toggleTemperatureUnit()" 
+            class="toggle-unit-btn"
+            [class.active]="useFahrenheit"
+          >
+            {{ useFahrenheit ? '°C' : '°F' }}
+          </button>
+          <div class="feels-like">
+            Feels like: {{ getFormattedTemperature(weatherData.main.feels_like) }}
+          </div>
+        </div>
+        
+        <div class="weather-icon-container">
+          <img 
+            [src]="getWeatherIconUrl(weatherData.weather[0].icon)" 
+            [alt]="weatherData.weather[0].description" 
+            class="weather-icon"
+          />
+          <div class="weather-description">
+            {{ weatherData.weather[0].description | titlecase }}
+          </div>
+        </div>
+      </div>
+
+      <div class="weather-details">
+        <div class="detail-item">
+          <div class="detail-label">Humidity</div>
+          <div class="detail-value">{{ weatherData.main.humidity }}%</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Pressure</div>
+          <div class="detail-value">{{ weatherData.main.pressure }} hPa</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Wind</div>
+          <div class="detail-value">
+            {{ weatherData.wind.speed.toFixed(1) }} m/s {{ getWindDirection(weatherData.wind.deg) }}
+          </div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Sunrise</div>
+          <div class="detail-value">
+            {{ getFormattedTime(weatherData.sys.sunrise) }}
+          </div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Sunset</div>
+          <div class="detail-value">
+            {{ getFormattedTime(weatherData.sys.sunset) }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="forecastData.length > 0" class="forecast-container">
+      <h3>5-Day Forecast</h3>
+      <div class="forecast-list">
+        <div *ngFor="let forecast of forecastData" class="forecast-item">
+          <div class="forecast-date">
+            {{ formatDate(forecast.dt) }}
+          </div>
+          <img 
+            [src]="getWeatherIconUrl(forecast.weather[0].icon)" 
+            [alt]="forecast.weather[0].description" 
+            class="forecast-icon"
+          />
+          <div class="forecast-temp">
+            {{ getFormattedTemperature(forecast.main.temp) }}
+          </div>
+          <div class="forecast-description">
+            {{ forecast.weather[0].description | titlecase }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
